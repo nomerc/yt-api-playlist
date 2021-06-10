@@ -18,8 +18,10 @@ const useStyles = makeStyles({
 
 export default function SongCard({ imgUrl, title, description }) {
   const classes = useStyles();
-  let _description = description.substring(0, 35) + "...";
-  let _title = title.substring(0, 15) + "...";
+  let _description = description.substring(0, 35)
+    ? description.length > 35 + "..."
+    : +"";
+  let _title = title.substring(0, 15) ? title.length > 15 + "..." : +"";
   return (
     <Card className={classes.root}>
       <CardActionArea>

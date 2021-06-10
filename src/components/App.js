@@ -1,66 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Grid } from "@material-ui/core";
+import StartingButtonsPanel from "./StartingButtonsPanel";
+import NavButtonsPanel from "./NavButtonsPanel";
 import SongCard from "./SongCard.js";
+import PlaylistCards from "./PlaylistCards.js";
+import useLoadItems from "../hooks/UseLoadItems";
 import "../css/index.css";
-
+//https://www.npmjs.com/package/export-from-json
 const App = () => {
   const [results, setResults] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [showPlaylists, setShowPlaylists] = useState(false);
   const [nextPageToken, setNextPageToken] = useState();
+  const [currentPlaylistId, setCurrentPlaylistId] = useState();
+  const [auth, setAuth] = useState(false);
   const [prevPageToken, setPrevPageToken] = useState();
 
-  function authenticate() {
-    return gapi.auth2
-      .getAuthInstance()
-      .signIn({ scope: "https://www.googleapis.com/auth/youtube.readonly" })
-      .then(
-        function () {
-          console.log("Sign-in successful");
-        },
-        function (err) {
-          console.error("Error signing in", err);
-        }
-      );
-  }
-  function loadClient() {
-    gapi.client.setApiKey("AIzaSyAjqsvkOKS6QhtTNR23M3QBPYf3ww4SdBQ");
-    return gapi.client
-      .load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
-      .then(
-        function () {
-          console.log("GAPI client loaded for API");
-        },
-        function (err) {
-          console.error("Error loading GAPI client for API", err);
-        }
-      );
-  }
-  function authenticateAndLoadClient() {
-    authenticate().then(loadClient());
-  }
   // Make sure the client is loaded and sign-in is complete before calling this method.
-  function execute(pageToken) {
+  function executeQuery({ pageToken, playlistId } = {}) {
     let settings = {
       part: ["snippet"],
-      playlistId: "FLuQwGIEUhSmyO7LXQ-_ojwA",
+      playlistId: playlistId || currentPlaylistId, // "FLuQwGIEUhSmyO7LXQ-_ojwA",
       maxResults: "50",
     };
+
+    if (playlistId) setCurrentPlaylistId(playlistId);
+
     if (pageToken) settings = { ...settings, pageToken };
+    // if (playlistId) settings = { ...settings, playlistId };
 
     return gapi.client.youtube.playlistItems.list(settings).then(
-      function (response) {
+      (response) => {
         // Handle the results here (response.result has the parsed body).
         setNextPageToken(response.result.nextPageToken);
         setPrevPageToken(response.result.prevPageToken);
         setResults(response.result.items);
-
-        console.log("Response", response);
       },
-      function (err) {
+      (err) => {
         console.error("Execute error", err);
       }
     );
   }
-  gapi.load("client:auth2", function () {
+  gapi.load("client:auth2", () => {
     gapi.auth2.init({
       client_id:
         "553688206979-k5bldbku3ll40rijvj44ldo1p4ggnh6l.apps.googleusercontent.com",
@@ -69,7 +50,31 @@ const App = () => {
 
   return (
     <div>
+      {!playlists.length && (
+        <StartingButtonsPanel
+          setPlaylists={setPlaylists}
+          auth={auth}
+          setAuth={setAuth}
+          setShowPlaylists={setShowPlaylists}
+        />
+      )}
+
+      {results.length != 0 && (
+        <NavButtonsPanel
+          executeQuery={executeQuery}
+          prev={prevPageToken}
+          next={nextPageToken}
+        />
+      )}
+
       <Grid container direction="row" justify="center" alignItems="center">
+        {showPlaylists && (
+          <PlaylistCards
+            playlists={playlists}
+            executeQuery={executeQuery}
+            setShowPlaylists={setShowPlaylists}
+          />
+        )}
         {results &&
           results.map((item) => (
             <SongCard
@@ -80,49 +85,6 @@ const App = () => {
             />
           ))}
       </Grid>
-      <Grid container direction="row" justify="center" alignItems="center">
-        {prevPageToken && (
-          <Button
-            size="large"
-            variant="contained"
-            color="secondary"
-            onClick={() => execute(prevPageToken)}
-          >
-            Prev
-          </Button>
-        )}
-        {nextPageToken && (
-          <Button
-            size="large"
-            variant="contained"
-            color="primary"
-            onClick={() => execute(nextPageToken)}
-          >
-            Next
-          </Button>
-        )}
-      </Grid>
-
-      {results.length == 0 && (
-        <Grid container direction="row" justify="center" alignItems="center">
-          <Button
-            size="large"
-            variant="contained"
-            color="primary"
-            onClick={authenticateAndLoadClient}
-          >
-            authorize and load
-          </Button>
-          <Button
-            size="large"
-            variant="contained"
-            color="secondary"
-            onClick={() => execute()}
-          >
-            execute
-          </Button>
-        </Grid>
-      )}
     </div>
   );
 };
