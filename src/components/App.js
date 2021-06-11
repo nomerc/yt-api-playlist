@@ -4,7 +4,7 @@ import StartingButtonsPanel from "./StartingButtonsPanel";
 import NavButtonsPanel from "./NavButtonsPanel";
 import SongCard from "./SongCard.js";
 import PlaylistCards from "./PlaylistCards.js";
-import useLoadItems from "../hooks/UseLoadItems";
+
 import "../css/index.css";
 //https://www.npmjs.com/package/export-from-json
 const App = () => {
@@ -16,25 +16,41 @@ const App = () => {
   const [auth, setAuth] = useState(false);
   const [prevPageToken, setPrevPageToken] = useState();
 
-  // Make sure the client is loaded and sign-in is complete before calling this method.
-  function executeQuery({ pageToken, playlistId } = {}) {
+  function executeQuery({ pageToken, playlistId, exportToExcel } = {}) {
     let settings = {
       part: ["snippet"],
-      playlistId: playlistId || currentPlaylistId, // "FLuQwGIEUhSmyO7LXQ-_ojwA",
+      playlistId: playlistId || currentPlaylistId,
       maxResults: "50",
     };
 
     if (playlistId) setCurrentPlaylistId(playlistId);
 
     if (pageToken) settings = { ...settings, pageToken };
-    // if (playlistId) settings = { ...settings, playlistId };
 
     return gapi.client.youtube.playlistItems.list(settings).then(
       (response) => {
-        // Handle the results here (response.result has the parsed body).
-        setNextPageToken(response.result.nextPageToken);
-        setPrevPageToken(response.result.prevPageToken);
-        setResults(response.result.items);
+        if (exportToExcel) {
+          let data;
+          // do {
+            data = response.result.items.map((item) => ({
+              TITLE: item.snippet.title,
+              // DESCRIPTION: item.snippet.description,
+            }));
+            // setNextPageToken(response.result.nextPageToken);
+            // console.log(response.result.nextPageToken);
+          //   if (response.result.nextPageToken)
+          //     executeQuery({
+          //       pageToken: response.result.nextPageToken,
+          //       exportToExcel: true,
+          //     });
+          // } while (nextPageToken);
+
+          JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+        } else {
+          setNextPageToken(response.result.nextPageToken);
+          setPrevPageToken(response.result.prevPageToken);
+          setResults(response.result.items);
+        }
       },
       (err) => {
         console.error("Execute error", err);

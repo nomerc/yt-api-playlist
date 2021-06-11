@@ -7,7 +7,8 @@ import {
   ListSubheader,
   IconButton,
 } from "@material-ui/core";
-import SlideshowIcon from "@material-ui/icons/Slideshow";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import JSONToCSVConvertor from "../utils/JsonToCsvConverter";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,6 +27,77 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/* const getMoreTracks = (settings) => {
+  let _next;
+  let _data = [];
+  return gapi.client.youtube.playlistItems.list(settings).then((response) => {
+    _next = response.result.nextPageToken;
+    _data.push(
+      response.result.items.map((item) => ({
+        TITLE: item.snippet.title,
+      }))
+    );
+  });
+};
+const exportTracks = (playlistId) => {
+  let data = [];
+  let settings = {
+    part: ["snippet"],
+    playlistId: playlistId,
+    maxResults: "50",
+  };
+
+  gapi.client.youtube.playlistItems.list(settings).then(
+    (response) => {
+      let next = response.result.nextPageToken;
+      data.push(
+        response.result.items.map((item) => ({
+          TITLE: item.snippet.title,
+        }))
+      );
+
+      // while (next) {
+      settings = { ...settings, pageToken: next };
+      let res = getMoreTracks(settings).then((response) => {
+        console.log(response);
+      });
+
+      // data.push(res._data);
+      // next = res._next;
+      // }
+      // JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+    },
+    (err) => {
+      console.error("Execute error", err);
+    }
+  );
+}; */
+
+const asyncExportTracks = async (playlistId) => {
+  let next;
+  let data = [];
+  let settings = {
+    part: ["snippet"],
+    playlistId: playlistId,
+    maxResults: "50",
+  };
+
+  do {
+    const res = await gapi.client.youtube.playlistItems.list(settings);
+    next = res.result.nextPageToken;
+    data.push(
+      ...res.result.items.map((item) => ({
+        TITLE: item.snippet.title,
+      }))
+    );
+    settings = { ...settings, pageToken: next };
+  } while (next);
+  
+  JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+};
+
+
+
 const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
   const classes = useStyles();
 
@@ -40,6 +112,12 @@ const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
             <img
               src={playlist.snippet.thumbnails.high.url}
               alt={playlist.snippet.title}
+              onClick={() => {
+                executeQuery({
+                  playlistId: playlist.id,
+                });
+                setShowPlaylists(false);
+              }}
             />
             <GridListTileBar
               title={playlist.snippet.title}
@@ -49,13 +127,10 @@ const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
                   aria-label={`info about ${playlist.snippet.title}`}
                   className={classes.icon}
                   onClick={() => {
-                    executeQuery({
-                      playlistId: playlist.id,
-                    });
-                    setShowPlaylists(false);
+                    asyncExportTracks(playlist.id);
                   }}
                 >
-                  <SlideshowIcon />
+                  <SaveAltIcon />
                 </IconButton>
               }
             />
