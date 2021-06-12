@@ -31,19 +31,9 @@ const App = () => {
       (response) => {
         if (exportToExcel) {
           let data;
-          // do {
             data = response.result.items.map((item) => ({
               TITLE: item.snippet.title,
-              // DESCRIPTION: item.snippet.description,
             }));
-            // setNextPageToken(response.result.nextPageToken);
-            // console.log(response.result.nextPageToken);
-          //   if (response.result.nextPageToken)
-          //     executeQuery({
-          //       pageToken: response.result.nextPageToken,
-          //       exportToExcel: true,
-          //     });
-          // } while (nextPageToken);
 
           JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
         } else {
@@ -60,7 +50,7 @@ const App = () => {
   gapi.load("client:auth2", () => {
     gapi.auth2.init({
       client_id:
-        "553688206979-k5bldbku3ll40rijvj44ldo1p4ggnh6l.apps.googleusercontent.com",
+      "Client_ID",
     });
   });
 

@@ -1,5 +1,5 @@
 const useLoadClient = () => {
-  gapi.client.setApiKey("AIzaSyAjqsvkOKS6QhtTNR23M3QBPYf3ww4SdBQ");
+  gapi.client.setApiKey("APIkey");
   return gapi.client
     .load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
     .then(

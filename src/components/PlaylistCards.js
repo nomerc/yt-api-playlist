@@ -92,11 +92,8 @@ const asyncExportTracks = async (playlistId) => {
     );
     settings = { ...settings, pageToken: next };
   } while (next);
-  
   JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
 };
-
-
 
 const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
   const classes = useStyles();

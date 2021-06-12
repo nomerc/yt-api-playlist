@@ -11,7 +11,6 @@
 const JSONToCSVConvertor = (JSONData, ReportTitle, ShowLabel) => {
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
   var arrData = typeof JSONData != "object" ? JSON.parse(JSONData) : JSONData;
-
   var CSV = "sep=," + "\r\n\n";
 
   //This condition will generate the Label/Header
@@ -57,7 +56,8 @@ const JSONToCSVConvertor = (JSONData, ReportTitle, ShowLabel) => {
 
   //Initialize file format you want csv or xls
   var uri = "data:text/csv;charset=utf-8," + escape(CSV);
-
+  // CSV = "\uFEFF" + CSV;
+  // var uri = "data:text/csv;charset=utf-8," + escape(CSV);
   // Now the little tricky part.
   // you can use either>> window.open(uri);
   // but this will not work in some browsers
