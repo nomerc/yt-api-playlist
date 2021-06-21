@@ -31,9 +31,9 @@ const App = () => {
       (response) => {
         if (exportToExcel) {
           let data;
-            data = response.result.items.map((item) => ({
-              TITLE: item.snippet.title,
-            }));
+          data = response.result.items.map((item) => ({
+            TITLE: item.snippet.title,
+          }));
 
           JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
         } else {
@@ -49,8 +49,7 @@ const App = () => {
   }
   gapi.load("client:auth2", () => {
     gapi.auth2.init({
-      client_id:
-      "Client_ID",
+      client_id: "Client_ID",
     });
   });
 
