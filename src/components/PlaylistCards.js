@@ -27,51 +27,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/* const getMoreTracks = (settings) => {
-  let _next;
-  let _data = [];
-  return gapi.client.youtube.playlistItems.list(settings).then((response) => {
-    _next = response.result.nextPageToken;
-    _data.push(
-      response.result.items.map((item) => ({
-        TITLE: item.snippet.title,
-      }))
-    );
-  });
-};
-const exportTracks = (playlistId) => {
-  let data = [];
+/*const exportTracks = (playlistId, pageToken, data = []) => {
+  //same as asyncExportTracks but using Promises 
   let settings = {
     part: ["snippet"],
     playlistId: playlistId,
     maxResults: "50",
   };
 
+  if (pageToken) settings = { ...settings, pageToken };
+
   gapi.client.youtube.playlistItems.list(settings).then(
     (response) => {
       let next = response.result.nextPageToken;
       data.push(
-        response.result.items.map((item) => ({
+        ...response.result.items.map((item) => ({
           TITLE: item.snippet.title,
         }))
       );
 
-      // while (next) {
-      settings = { ...settings, pageToken: next };
-      let res = getMoreTracks(settings).then((response) => {
-        console.log(response);
-      });
-
-      // data.push(res._data);
-      // next = res._next;
-      // }
-      // JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+      if (next) {
+        exportTracks(playlistId, next, data);
+      } else {
+        JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+      }
     },
     (err) => {
       console.error("Execute error", err);
     }
   );
-}; */
+};
+ */
 
 const asyncExportTracks = async (playlistId) => {
   let next;
@@ -124,6 +110,7 @@ const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
                   aria-label={`info about ${playlist.snippet.title}`}
                   className={classes.icon}
                   onClick={() => {
+                    // exportTracks(playlist.id);
                     asyncExportTracks(playlist.id);
                   }}
                 >
