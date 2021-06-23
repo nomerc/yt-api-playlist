@@ -55,9 +55,13 @@ const JSONToCSVConvertor = (JSONData, ReportTitle, ShowLabel) => {
   fileName += ReportTitle.replace(/ /g, "_");
 
   //Initialize file format you want csv or xls
-  var uri = "data:text/csv;charset=utf-8," + escape(CSV);
-  // CSV = "\uFEFF" + CSV;
-  // var uri = "data:text/csv;charset=utf-8," + escape(CSV);
+  
+  // var uri = "data:text/xls;charset=utf-8," + escape(CSV);
+  // var universalBOM = "\uFEFF";
+  // var uri = "data:text/csv;charset=utf-8," + encodeURIComponent(universalBOM + CSV);
+  
+  var uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(CSV);
+  
   // Now the little tricky part.
   // you can use either>> window.open(uri);
   // but this will not work in some browsers
@@ -69,7 +73,8 @@ const JSONToCSVConvertor = (JSONData, ReportTitle, ShowLabel) => {
 
   //set the visibility hidden so it will not effect on your web-layout
   link.style = "visibility:hidden";
-  link.download = fileName + ".csv";
+  // link.download = fileName + ".csv";
+  link.download = fileName + ".txt";
 
   //this part will append the anchor tag and remove it after automatic click
   document.body.appendChild(link);

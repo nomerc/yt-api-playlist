@@ -8,7 +8,7 @@ import {
   IconButton,
 } from "@material-ui/core";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
-import JSONToCSVConvertor from "../utils/JsonToCsvConverter";
+import JSONToTxtConvertor from "../utils/JsonToTxtConverter";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,7 +78,7 @@ const asyncExportTracks = async (playlistId) => {
     );
     settings = { ...settings, pageToken: next };
   } while (next);
-  JSONToCSVConvertor(JSON.stringify(data), "Tracks", true);
+  JSONToTxtConvertor(JSON.stringify(data), "Tracks", true);
 };
 
 const PlaylistCards = ({ playlists, executeQuery, setShowPlaylists }) => {
